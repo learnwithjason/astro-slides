@@ -1,8 +1,11 @@
 import { defineConfig } from 'astro/config';
 
-import sentry from "@sentry/astro";
+import sentry from '@sentry/astro';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [sentry()]
+	integrations: [sentry()],
+	devToolbar: {
+		enabled: false,
+	},
 });

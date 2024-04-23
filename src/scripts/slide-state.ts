@@ -6,7 +6,7 @@ export const partySocket = new PartySocket({
 	room: 'lwj',
 });
 
-export function send({ type, value }: { type: string; value: any }) {
+export function send({ type, value }: { type: string; value?: any }) {
 	partySocket.send(JSON.stringify({ type, value }));
 }
 

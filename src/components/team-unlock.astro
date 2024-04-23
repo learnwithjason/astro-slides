@@ -13,15 +13,26 @@ import Slide from './slide.astro';
 
 <Slide slug="team-unlock">
 	<h1>TODO: team unlock</h1>
+	<p>Press and hold the button for a surprise.</p>
+	<button id="unlock">HOLD! (<span id="count">0</span>)</button>
 </Slide>
 
 <script>
-	import { partySocket } from '../scripts/slide-state';
+	import { partySocket, send } from '../scripts/slide-state';
 	import { createMachine, createActor } from 'xstate';
 
-	const heading = document.querySelector(
-		'[data-slug="team-unlock"] h1',
-	) as HTMLHeadingElement;
+	const button = document.getElementById('unlock') as HTMLButtonElement;
+	const count = document.getElementById('count') as HTMLSpanElement;
+
+	function handleButtonHold() {
+		send({ type: 'team-unlock-hold' });
+		console.log('button held');
+	}
+
+	function handleButtonRelease() {
+		send({ type: 'team-unlock-release' });
+		console.log('button released');
+	}
 
 	const teamUnlockMachine = createMachine(
 		{
@@ -45,11 +56,13 @@ import Slide from './slide.astro';
 		},
 		{
 			actions: {
-				deactivateSlide: () => {
-					heading.innerText = 'DEACTIVATED!';
-				},
 				activateSlide: () => {
-					heading.innerText = 'ACTIVATED!';
+					button.addEventListener('mousedown', handleButtonHold);
+					button.addEventListener('mouseup', handleButtonRelease);
+				},
+				deactivateSlide: () => {
+					button.removeEventListener('mousedown', handleButtonHold);
+					button.removeEventListener('mouseup', handleButtonRelease);
 				},
 			},
 		},
@@ -68,6 +81,11 @@ import Slide from './slide.astro';
 		if (message.type === 'exit' && message.value === 'team-unlock') {
 			teamUnlockActor.send({ type: 'deactivate' });
 			return;
+		}
+
+		if (message.type === 'team-unlock-update') {
+			const currentCount = parseInt(message.value);
+			count.innerText = `${currentCount}`;
 		}
 	});
 </script>
