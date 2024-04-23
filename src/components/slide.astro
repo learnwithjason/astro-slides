@@ -1,0 +1,42 @@
+---
+export interface Props {
+	slug?: string;
+}
+
+const { slug = '' } = Astro.props;
+---
+
+<div class="slide" data-slug={slug}>
+	<div class="content">
+		<slot />
+	</div>
+</div>
+
+<style>
+	.slide {
+		align-items: center;
+		background: #fee;
+		block-size: 100dvh;
+		display: flex;
+		inline-size: 100vw;
+		place-content: center;
+		text-align: center;
+
+		&.hidden {
+			display: none;
+		}
+	}
+
+	.content {
+		block-size: 90dvh;
+		inline-size: 90vw;
+		place-content: center;
+
+		h1 {
+			font-size: clamp(1.25rem, 3vw, 2.25rem);
+			margin: 0;
+			text-transform: uppercase;
+			text-wrap: balance;
+		}
+	}
+</style>

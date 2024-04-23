@@ -1,0 +1,73 @@
+---
+/*
+ * 1. Locked state
+ *    - shows a QR code and a short link
+ *    - instruction: X people need to boop this corgi before we begin
+ *    - show the corgi to be booped
+ *    - counters: people on site, # of boops
+ * 2. Unlocked state
+ *    - slide content
+ */
+import Slide from './slide.astro';
+---
+
+<Slide slug="team-unlock">
+	<h1>TODO: team unlock</h1>
+</Slide>
+
+<script>
+	import { partySocket } from '../scripts/slide-state';
+	import { createMachine, createActor } from 'xstate';
+
+	const heading = document.querySelector(
+		'[data-slug="team-unlock"] h1',
+	) as HTMLHeadingElement;
+
+	const teamUnlockMachine = createMachine(
+		{
+			id: 'team-unlock',
+			initial: 'inactive',
+			context: {} as {},
+			states: {
+				inactive: {
+					entry: 'deactivateSlide',
+					on: {
+						activate: 'active',
+					},
+				},
+				active: {
+					entry: 'activateSlide',
+					on: {
+						deactivate: 'inactive',
+					},
+				},
+			},
+		},
+		{
+			actions: {
+				deactivateSlide: () => {
+					heading.innerText = 'DEACTIVATED!';
+				},
+				activateSlide: () => {
+					heading.innerText = 'ACTIVATED!';
+				},
+			},
+		},
+	);
+
+	const teamUnlockActor = createActor(teamUnlockMachine).start();
+
+	partySocket.addEventListener('message', (event) => {
+		const message = JSON.parse(event.data);
+
+		if (message.type === 'enter' && message.value === 'team-unlock') {
+			teamUnlockActor.send({ type: 'activate' });
+			return;
+		}
+
+		if (message.type === 'exit' && message.value === 'team-unlock') {
+			teamUnlockActor.send({ type: 'deactivate' });
+			return;
+		}
+	});
+</script>

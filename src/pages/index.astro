@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/default.astro';
+import Slide from '../components/slide.astro';
+import TeamUnlock from '../components/team-unlock.astro';
+---
+
+<Layout title="Putting fun back into coding">
+	<Slide>
+		<h1>What happens if I add way too much text and it wraps?</h1>
+	</Slide>
+	<TeamUnlock />
+	<Slide>
+		<h1>Another one</h1>
+	</Slide>
+	<Slide>
+		<h1>Wow</h1>
+	</Slide>
+</Layout>
+
+<script>
+	import { countActor, send } from '../scripts/slide-state';
+
+	const slides = document.querySelectorAll(
+		'.slide',
+	) as NodeListOf<HTMLDivElement>;
+
+	countActor.subscribe((state) => {
+		const slideIndex = Math.min(state.context.count, slides.length - 1);
+
+		const currentSlide = slides[slideIndex];
+
+		for (let slide of slides) {
+			const slug = slide.dataset.slug ?? '';
+
+			slide.classList.add('hidden');
+			send({ type: 'exit', value: slug });
+		}
+
+		const currentSlug = currentSlide.dataset.slug ?? '';
+		currentSlide.classList.remove('hidden');
+
+		if (currentSlug !== '') {
+			send({ type: 'enter', value: currentSlug });
+			// 	console.log({ type: 'enter', value: currentSlug });
+			// 	console.log('sending...');
+		}
+	});
+</script>

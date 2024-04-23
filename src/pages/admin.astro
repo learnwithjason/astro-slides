@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/default.astro';
+---
+
+<Layout title="Putting fun back into coding">
+	<div class="admin-controls">
+		<button class="decrement">Previous Slide</button>
+		<input name="current-slide" class="current-slide" value="0" type="text" />
+		<button class="increment">Next Slide</button>
+	</div>
+</Layout>
+
+<script>
+	import { countActor } from '../scripts/slide-state';
+
+	const prevBtn = document.querySelector('.decrement');
+	const nextBtn = document.querySelector('.increment');
+	const currentSlide = document.querySelector(
+		'.current-slide',
+	) as HTMLInputElement;
+
+	countActor.subscribe((state) => {
+		currentSlide!.value = `${state.context.count}`;
+	});
+
+	prevBtn?.addEventListener('click', () => {
+		countActor.send({ type: 'DEC' });
+	});
+
+	nextBtn?.addEventListener('click', () => {
+		countActor.send({ type: 'INC' });
+	});
+</script>
+
+<style>
+	.admin-controls {
+		position: absolute;
+		inset-block-end: 0;
+		inset-inline: 0;
+		background: black;
+		padding: 5rem 2rem;
+		display: flex;
+		place-content: center;
+		gap: 0.5rem;
+	}
+</style>
